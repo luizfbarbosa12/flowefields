@@ -11,35 +11,39 @@ interface FlowerData {
   delay: number;
 }
 
+const FLOWER_COUNT = 400;
+const MAX_DISTANCE = Math.sqrt(50 * 50 + 50 * 50);
+
 export default function App() {
   const [flowers, setFlowers] = useState<FlowerData[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const createFlowers = () => {
     if (isAnimating) return;
-    
+
     setIsAnimating(true);
     const newFlowers: FlowerData[] = [];
-    
-    // Create many flowers to fill the entire background
-    const flowerCount = 150;
-    
-    for (let i = 0; i < flowerCount; i++) {
+
+    for (let i = 0; i < FLOWER_COUNT; i++) {
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      const dist = Math.sqrt((x - 50) ** 2 + (y - 50) ** 2);
+      const normalizedDist = dist / MAX_DISTANCE;
+
       newFlowers.push({
         id: Date.now() + i,
-        x: Math.random() * 100, // percentage
-        y: Math.random() * 100, // percentage
-        type: Math.floor(Math.random() * 5), // 5 different flower types
-        delay: Math.random() * 2.5, // stagger animation
+        x,
+        y,
+        type: Math.floor(Math.random() * 5),
+        delay: normalizedDist * 2 + Math.random() * 0.3,
       });
     }
-    
+
     setFlowers(newFlowers);
-    
-    // Reset after animation completes
+
     setTimeout(() => {
       setIsAnimating(false);
-    }, 4000);
+    }, 5000);
   };
 
   const clearFlowers = () => {
@@ -63,7 +67,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Staff Button - Centered */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center z-10">
         <StaffButton onClick={createFlowers} disabled={isAnimating} />
       </div>
 
@@ -74,9 +78,9 @@ export default function App() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           onClick={clearFlowers}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg text-sm"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg text-sm z-20"
         >
-          Clear Flowers
+          Limpar flores
         </motion.button>
       )}
 
@@ -85,7 +89,7 @@ export default function App() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center"
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center z-20"
         >
           <p className="text-slate-600 text-sm px-4">
             Tap the staff to bloom flowers
