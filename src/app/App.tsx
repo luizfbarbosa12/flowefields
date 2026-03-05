@@ -1,82 +1,77 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useCallback, useRef } from 'react';
+import { motion } from 'motion/react';
 import { Flower } from './components/Flower';
 import { StaffButton } from './components/StaffButton';
 
 interface FlowerData {
-  id: number;
   x: number;
   y: number;
   type: number;
   delay: number;
+  rotation: number;
+  size: number;
 }
 
 const FLOWER_COUNT = 400;
 const MAX_DISTANCE = Math.sqrt(50 * 50 + 50 * 50);
 
-export default function App() {
-  const [flowers, setFlowers] = useState<FlowerData[]>([]);
-  const [isAnimating, setIsAnimating] = useState(false);
+function generateFlowers(): FlowerData[] {
+  const flowers: FlowerData[] = [];
+  for (let i = 0; i < FLOWER_COUNT; i++) {
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const dist = Math.sqrt((x - 50) ** 2 + (y - 50) ** 2);
+    const normalizedDist = dist / MAX_DISTANCE;
+    flowers.push({
+      x,
+      y,
+      type: Math.floor(Math.random() * 5),
+      delay: normalizedDist * 2 + Math.random() * 0.3,
+      rotation: Math.random() * 360,
+      size: 0.6 + Math.random() * 0.8,
+    });
+  }
+  return flowers;
+}
 
-  const createFlowers = () => {
+export default function App() {
+  const [flowers, setFlowers] = useState<FlowerData[]>(() => generateFlowers());
+  const [visible, setVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const timerRef = useRef<number>();
+
+  const handleStaffClick = useCallback(() => {
     if (isAnimating) return;
 
+    setFlowers(generateFlowers());
+    setVisible(true);
     setIsAnimating(true);
-    const newFlowers: FlowerData[] = [];
 
-    for (let i = 0; i < FLOWER_COUNT; i++) {
-      const x = Math.random() * 100;
-      const y = Math.random() * 100;
-      const dist = Math.sqrt((x - 50) ** 2 + (y - 50) ** 2);
-      const normalizedDist = dist / MAX_DISTANCE;
-
-      newFlowers.push({
-        id: Date.now() + i,
-        x,
-        y,
-        type: Math.floor(Math.random() * 5),
-        delay: normalizedDist * 2 + Math.random() * 0.3,
-      });
-    }
-
-    setFlowers(newFlowers);
-
-    setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       setIsAnimating(false);
     }, 5000);
-  };
+  }, [isAnimating]);
 
-  const clearFlowers = () => {
-    setFlowers([]);
+  const clearFlowers = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setVisible(false);
     setIsAnimating(false);
-  };
+  }, []);
 
   return (
     <div className="relative w-full h-screen bg-gradient-to-b from-sky-100 via-blue-50 to-green-50 overflow-hidden">
-      {/* Flowers Layer */}
-      <AnimatePresence>
-        {flowers.map((flower) => (
-          <Flower
-            key={flower.id}
-            x={flower.x}
-            y={flower.y}
-            type={flower.type}
-            delay={flower.delay}
-          />
-        ))}
-      </AnimatePresence>
+      {flowers.map((flower, i) => (
+        <Flower key={i} {...flower} visible={visible} />
+      ))}
 
-      {/* Staff Button - Centered */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
-        <StaffButton onClick={createFlowers} disabled={isAnimating} />
+        <StaffButton onClick={handleStaffClick} disabled={isAnimating} />
       </div>
 
-      {/* Clear Button - Bottom */}
-      {flowers.length > 0 && (
+      {visible && (
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
           onClick={clearFlowers}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full shadow-lg text-sm z-20"
         >
@@ -84,8 +79,7 @@ export default function App() {
         </motion.button>
       )}
 
-      {/* Instruction Text */}
-      {flowers.length === 0 && (
+      {!visible && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
