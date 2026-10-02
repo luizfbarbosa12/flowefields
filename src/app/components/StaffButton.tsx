@@ -1,4 +1,7 @@
+import { useId } from 'react';
 import { motion } from 'motion/react';
+import { useReducedMotionPreference } from '../hooks/useAnimationEnvironment';
+import { StaffCastingGlow, StaffCastingParticles } from './StaffEffects';
 
 interface StaffButtonProps {
   onClick: () => void;
@@ -6,12 +9,18 @@ interface StaffButtonProps {
 }
 
 export function StaffButton({ onClick, disabled }: StaffButtonProps) {
+  const reducedMotion = useReducedMotionPreference();
+  const idPrefix = `staff-${useId().replace(/:/g, '')}`;
+  const casting = disabled && !reducedMotion;
+
   return (
     <motion.button
+      type="button"
       onClick={onClick}
       disabled={disabled}
-      whileTap={{ scale: disabled ? 1 : 0.95 }}
-      whileHover={{ scale: disabled ? 1 : 1.05 }}
+      aria-label="Bloom flowers"
+      whileTap={{ scale: disabled || reducedMotion ? 1 : 0.95 }}
+      whileHover={{ scale: disabled || reducedMotion ? 1 : 1.05 }}
       className="relative cursor-pointer disabled:cursor-not-allowed"
       style={{ width: '120px', height: '400px' }}
     >
@@ -21,11 +30,17 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
         viewBox="0 0 120 400"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        animate={disabled ? { rotate: [0, -5, 5, -5, 0] } : {}}
+        animate={casting ? { rotate: [0, -5, 5, -5, 0] } : {}}
         transition={{ duration: 0.5 }}
       >
         <defs>
-          <linearGradient id="metalGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient
+            id={`${idPrefix}-metalGold`}
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
             <stop offset="0%" stopColor="#D4B86A" />
             <stop offset="25%" stopColor="#C9A84C" />
             <stop offset="50%" stopColor="#E8D48B" />
@@ -33,21 +48,33 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
             <stop offset="100%" stopColor="#8B7535" />
           </linearGradient>
 
-          <linearGradient id="metalSheen" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient
+            id={`${idPrefix}-metalSheen`}
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
             <stop offset="0%" stopColor="#C9A84C" />
             <stop offset="40%" stopColor="#E8D48B" />
             <stop offset="60%" stopColor="#E8D48B" />
             <stop offset="100%" stopColor="#C9A84C" />
           </linearGradient>
 
-          <radialGradient id="gemGradient" cx="38%" cy="35%">
+          <radialGradient id={`${idPrefix}-gemGradient`} cx="38%" cy="35%">
             <stop offset="0%" stopColor="#FF6666" />
             <stop offset="20%" stopColor="#CC3333" />
             <stop offset="55%" stopColor="#991A1A" />
             <stop offset="100%" stopColor="#5C0A0A" />
           </radialGradient>
 
-          <linearGradient id="shaftGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient
+            id={`${idPrefix}-shaftGradient`}
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
             <stop offset="0%" stopColor="#5E1E1E" />
             <stop offset="25%" stopColor="#7A2E2E" />
             <stop offset="50%" stopColor="#8B3838" />
@@ -55,13 +82,25 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
             <stop offset="100%" stopColor="#5E1E1E" />
           </linearGradient>
 
-          <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient
+            id={`${idPrefix}-ribbonGrad`}
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
             <stop offset="0%" stopColor="#A03030" />
             <stop offset="50%" stopColor="#8B2222" />
             <stop offset="100%" stopColor="#681818" />
           </linearGradient>
 
-          <filter id="gemGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <filter
+            id={`${idPrefix}-gemGlow`}
+            x="-50%"
+            y="-50%"
+            width="200%"
+            height="200%"
+          >
             <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
@@ -76,7 +115,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
           cx="58"
           cy="50"
           r="20"
-          fill="url(#metalGold)"
+          fill={`url(#${idPrefix}-metalGold)`}
           stroke="#8B7535"
           strokeWidth="1"
         />
@@ -90,7 +129,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
             A 20 20 0 1 1 71 35
             Z
           `}
-          fill="url(#metalGold)"
+          fill={`url(#${idPrefix}-metalGold)`}
           stroke="#8B7535"
           strokeWidth="1"
         />
@@ -110,7 +149,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
         {/* Upper horn tip */}
         <path
           d="M 79 26 C 84 18, 88 12, 85 6 C 82 10, 80 18, 79 26"
-          fill="url(#metalGold)"
+          fill={`url(#${idPrefix}-metalGold)`}
           stroke="#8B7535"
           strokeWidth="0.8"
         />
@@ -118,7 +157,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
         {/* Lower horn tip */}
         <path
           d="M 79 74 C 84 82, 88 88, 85 94 C 82 90, 80 82, 79 74"
-          fill="url(#metalGold)"
+          fill={`url(#${idPrefix}-metalGold)`}
           stroke="#8B7535"
           strokeWidth="0.8"
         />
@@ -146,7 +185,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
         {/* === RED GEM / ORB === */}
         <motion.g
           animate={
-            disabled
+            casting
               ? {
                   filter: [
                     'drop-shadow(0 0 6px rgba(204, 51, 51, 0.5))',
@@ -156,17 +195,15 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
                 }
               : {}
           }
-          transition={{ duration: 1, repeat: disabled ? Infinity : 0 }}
+          transition={{ duration: 1, repeat: casting ? Infinity : 0 }}
         >
-          <circle cx="58" cy="50" r="14" fill="url(#gemGradient)" />
-          <ellipse
-            cx="52"
-            cy="44"
-            rx="4"
-            ry="5.5"
-            fill="white"
-            opacity="0.3"
+          <circle
+            cx="58"
+            cy="50"
+            r="14"
+            fill={`url(#${idPrefix}-gemGradient)`}
           />
+          <ellipse cx="52" cy="44" rx="4" ry="5.5" fill="white" opacity="0.3" />
           <ellipse
             cx="64"
             cy="56"
@@ -195,7 +232,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
             C 38 104, 42 92, 48 80
             Z
           `}
-          fill="url(#ribbonGrad)"
+          fill={`url(#${idPrefix}-ribbonGrad)`}
           stroke="#4A1010"
           strokeWidth="0.4"
           opacity="0.9"
@@ -208,7 +245,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
             C 70 102, 68 92, 66 80
             Z
           `}
-          fill="url(#ribbonGrad)"
+          fill={`url(#${idPrefix}-ribbonGrad)`}
           stroke="#4A1010"
           strokeWidth="0.4"
           opacity="0.85"
@@ -221,7 +258,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
           width="24"
           height="10"
           rx="3"
-          fill="url(#metalGold)"
+          fill={`url(#${idPrefix}-metalGold)`}
           stroke="#8B7535"
           strokeWidth="1"
         />
@@ -242,7 +279,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
           width="14"
           height="278"
           rx="7"
-          fill="url(#shaftGradient)"
+          fill={`url(#${idPrefix}-shaftGradient)`}
           stroke="#3A1212"
           strokeWidth="1"
         />
@@ -274,7 +311,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
           width="18"
           height="5"
           rx="2"
-          fill="url(#metalSheen)"
+          fill={`url(#${idPrefix}-metalSheen)`}
           stroke="#8B7535"
           strokeWidth="0.7"
         />
@@ -284,7 +321,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
           width="18"
           height="5"
           rx="2"
-          fill="url(#metalSheen)"
+          fill={`url(#${idPrefix}-metalSheen)`}
           stroke="#8B7535"
           strokeWidth="0.7"
         />
@@ -294,7 +331,7 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
           width="18"
           height="5"
           rx="2"
-          fill="url(#metalSheen)"
+          fill={`url(#${idPrefix}-metalSheen)`}
           stroke="#8B7535"
           strokeWidth="0.7"
         />
@@ -305,112 +342,21 @@ export function StaffButton({ onClick, disabled }: StaffButtonProps) {
           cy="368"
           rx="10"
           ry="3.5"
-          fill="url(#metalSheen)"
+          fill={`url(#${idPrefix}-metalSheen)`}
           stroke="#8B7535"
           strokeWidth="0.8"
         />
         <path
           d="M 54 368 L 60 385 L 66 368"
-          fill="url(#metalGold)"
+          fill={`url(#${idPrefix}-metalGold)`}
           stroke="#8B7535"
           strokeWidth="1"
         />
 
-        {/* === CASTING PARTICLES === */}
-        {disabled && (
-          <>
-            <motion.circle
-              cx="42"
-              cy="42"
-              r="2"
-              fill="#FFD700"
-              animate={{
-                y: [0, -20, -40],
-                opacity: [1, 0.5, 0],
-                scale: [1, 1.5, 0],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                repeatDelay: 0.3,
-              }}
-            />
-            <motion.circle
-              cx="78"
-              cy="38"
-              r="1.5"
-              fill="#FFD700"
-              animate={{
-                y: [0, -25, -50],
-                opacity: [1, 0.5, 0],
-                scale: [1, 1.5, 0],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                repeatDelay: 0.3,
-                delay: 0.5,
-              }}
-            />
-            <motion.circle
-              cx="34"
-              cy="58"
-              r="1.5"
-              fill="#FFF0B0"
-              animate={{
-                y: [0, -15, -35],
-                opacity: [1, 0.4, 0],
-                scale: [1, 1.2, 0],
-              }}
-              transition={{
-                duration: 1.8,
-                repeat: Infinity,
-                repeatDelay: 0.2,
-                delay: 0.3,
-              }}
-            />
-            {/* Star sparkles */}
-            <motion.path
-              d="M 92 28 l 2 -4 2 4 4 2 -4 2 -2 4 -2 -4 -4 -2 Z"
-              fill="#FFD700"
-              animate={{
-                opacity: [0, 1, 0],
-                scale: [0.5, 1.2, 0.5],
-              }}
-              transition={{
-                duration: 1.2,
-                repeat: Infinity,
-                delay: 0.2,
-              }}
-            />
-            <motion.path
-              d="M 22 62 l 1.5 -3 1.5 3 3 1.5 -3 1.5 -1.5 3 -1.5 -3 -3 -1.5 Z"
-              fill="#FFE44D"
-              animate={{
-                opacity: [0, 1, 0],
-                scale: [0.5, 1.2, 0.5],
-              }}
-              transition={{
-                duration: 1.4,
-                repeat: Infinity,
-                delay: 0.7,
-              }}
-            />
-          </>
-        )}
+        {casting && <StaffCastingParticles />}
       </motion.svg>
 
-      {/* Glow effect when casting */}
-      {disabled && (
-        <motion.div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-red-400/30 blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      )}
+      {casting && <StaffCastingGlow />}
     </motion.button>
   );
 }
